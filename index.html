@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lighthouse</title>
+  <style>
+    @font-face {
+      font-family: Lokro;
+      src: url(./lokro.light.otf);
+      font-weight: normal; /* Regular font weight */
+      font-style: normal; /* Normal font style */
+    }
+    @font-face {
+      font-family: Lokro;
+      src: url(./lokro.bold.otf);
+      font-weight: bold; /* Regular font weight */
+      font-style: normal; /* Normal font style */
+    }
+
+
+    body {
+      font-family: Lokro, sans-serif;
+    }
+    /* CSS styles go here */
+    .clickable:hover {
+        text-decoration: underline;
+        cursor: pointer;
+
+    }
+
+    textarea {
+      font-family: Lokro, sans-serif;
+      box-sizing: border-box; /* Include padding and border in the width calculation */
+      resize: none; /* Disable textarea resizing */
+      width: 50vw;
+    }
+
+    .button {
+      font-family: Lokro, sans-serif;
+      -webkit-transform: skew(-20deg);
+      -moz-transform: skew(-20deg);
+      -o-transform: skew(-20deg);
+      border: 1px solid black;
+      background-color:white;
+      cursor: pointer; /* Change the cursor to a pointer on hover */
+      padding: 2px 5px;
+    }
+    .button:hover {
+      background-color:black;
+      color:white;
+    }
+
+    .game-window {
+        display: flex;
+        justify-content: center;
+        height: 80vh; /* Optional: Adjust the height as per your requirements */
+        margin-top: 5vh;
+        margin-bottom: 5vh;
+    }
+    .game {
+        width: 50vw;
+    }
+    .center {
+        text-align: center;
+        align-items: center;
+    }
+
+    .numbered-list {
+      list-style-type: decimal;
+    }
+    .selected{
+        text-decoration-line: underline;
+    }
+    .frozen{
+        opacity: 0.6;
+    }
+    .strength-weakness > li {
+        padding-bottom:5px;
+    }
+    .audio-controls {
+        position: relative;
+        top:10px;
+        right:10px;
+        float: right;
+    }
+
+    #chapters{
+        position: relative;
+        top:10px;
+        width:50vw;
+    }
+
+
+  </style>
+</head>
+<body>
+    <div id="playAudio" class="audio-controls button" onclick="toggleSound()">
+        Sound On
+    </div>
+    <div id="chapters">
+        <span onclick="(() => {clearGameWindow();tutorial1();})()">tutorial 1</span> |
+        <span onclick="(() => {clearGameWindow();night1();})()">night 1</span> |
+        <span onclick="(() => {clearGameWindow();night2();})()">night 2</span> |
+        <span onclick="(() => {clearGameWindow();night3();})()">night 3</span> |
+        <span onclick="(() => {clearGameWindow();night4();})()">night 4</span> |
+    </div>
+
+    <div class="game-window">
+        <div id="game" class="game">
+
+        </div>
+        <audio id="myAudio">
+          <source src="./Gentle_Ocean.mp3">
+          <p>Your browser doesn't support this,
+          <a href="…">download the file</a>.</p>
+        </audio>
+    </div>
+    <script type="text/javascript">
+        function toggleSound(){
+          var audio = document.getElementById('myAudio');
+          var audioControls = document.getElementById("playAudio");
+          if(audio.paused){
+            audioControls.innerHTML = "Sound Off"
+            audio.play();
+          }else{
+            audioControls.innerHTML = "Sound On";
+            audio.pause();
+          }
+        }
+
+        function optionSelection(evt, allowReclick){
+            var children = evt.target.parentElement.children;
+            for (var i = 0; i < children.length; i++) {
+                var elem= children[i];
+                elem.className = allowReclick?"clickable":"";
+                if(elem != evt.target && !allowReclick){
+                    elem.className += "frozen";
+                }
+                if(!allowReclick){
+                    elem.onclick = () => {};
+                    evt.target.parentElement.onclick = () => {};
+                }
+            }
+            evt.target.className += " selected";
+        }
+
+
+        var gameWindow = document.getElementById('game');
+        var resiliency = 3;
+        var strength = 2;
+        var strengthDescription = "Quick Thinker, Physically Weak";
+
+        function updateResiliency(value){
+            resiliency = value;
+            let node = document.getElementById("resiliency");
+            node.innerHTML = resiliency;
+        }
+
+        function setStrength(value, description){
+            strength = parseInt(value);
+            strengthDescription = description;
+        }
+        function clearGameWindow(){
+            gameWindow.innerHTML = '';
+        }
+        function startGame() {
+            const title = document.createElement("h1");
+            const secondary = document.createElement("h3");
+            resiliency = 3;
+
+            // Set attributes for the <div> element (optional)
+            title.id = "title";
+            title.className = "center";
+            title.innerHTML = "The Lighthouse Keeper"
+            secondary.className = "center";
+            secondary.innerHTML = "a solo RPG"
+
+            const startContainer = document.createElement("div");
+            const start = document.createElement("button");
+            startContainer.className = "center";
+            start.className = "button";
+            start.innerHTML = "Begin";
+
+            start.onclick = () => {
+                clearGameWindow();
+                tutorial1();
+            } 
+ 
+            startContainer.append(start);
+            gameWindow.append(title);
+            gameWindow.append(secondary);
+            gameWindow.append(startContainer);
+        }
+
+        function night1Path(value){
+            const actionResult = document.createElement("div");
+            const next = document.createElement("button");
+            next.className = "button";
+            next.innerHTML = 'Continue';
+            next.onclick = (evt) => {
+                clearGameWindow();
+                night2();
+            }
+ 
+            if (value == 0){
+                night1FixFast();
+            } else {
+                night1RepairManual();
+            }
+
+            actionResult.innerHTML = `
+                <p>
+                    The night wears on. You light a fire to stay warm and bring out your journal.
+                    Where does your mind wander tonight? <i>You may elaborate here</i>:
+                    <textarea rows="4" cols="75"></textarea>
+                </p>
+
+                <p>
+                    Eventually the sun begins to rise, and you take your cue to shift downstairs to your living quarters to catch some sleep.
+                </p>
+            `;
+
+            gameWindow.append(actionResult);
+            gameWindow.append(next);
+        }
+
+        function night1FixFast(){
+            const actionResult = document.createElement("div");
+            let jumping = false;
+
+            let result = '<b>Fix it right away</b>'
+            if (strength == 2){
+                result += `
+                    <p> How did you figure out how to fix the lantern?
+                       <i>You may elaborate here:</i>
+                       <textarea rows="4" cols="75"></textarea>
+                    </p>`;
+            }else if ([1, 4 ,5].includes(strength)){
+                // update resiliency.
+                updateResiliency(resiliency-1);
+                result += `
+                    <p>You lose one resiliency point and are unsuccessful at the repair. What went wrong? 
+                        <i>You may elaborate here:</i>
+                        <textarea rows="4" cols="75"></textarea>
+                    </p>`;
+
+            }else if ([3, 6].includes(strength)){
+                jumping = true
+                result += `
+                    <p>
+                        You begin the repair process but get stuck and decide to read up on the repair in the repair manual.
+                    </p>
+                    `;
+            }
+            actionResult.innerHTML = result;
+            gameWindow.append(actionResult);
+            if(jumping){
+                night1RepairManual();
+            }
+        }
+
+        function night1RepairManual(){
+            const actionResult = document.createElement("div");
+            let result = '<b>Repair Manual</b>';
+            if([2, 6].includes(strength)){
+                updateResiliency(resiliency+1);
+                result += `
+                    <p>
+                        You gain one resiliency point. What did you learn from the repair manual? <i>You may elaborate here:</i>
+                        <textarea rows="4" cols="75"></textarea>
+                    </p>
+                `; 
+
+            }else if([1, 4, 5].includes(strength)){
+                updateResiliency(resiliency-1);
+                result += `
+                    <p>
+                        You lose one resiliency point and are unable to fix the mechanism. What went wrong? <i>You may elaborate here:</i>
+                        <textarea rows="4" cols="75"></textarea>
+                    </p>
+                    `;
+            }else if(strength == 3){
+                result += `
+                    <p>
+                        You are eventually able to repair the rotator but it takes most of the night. You don't gain or lose a resiliency point. How did you fix it? <i>You may elaborate here:</i>
+                        <textarea rows="4" cols="75"></textarea>
+                    </p>
+                    `;
+            }
+            actionResult.innerHTML = result;
+            gameWindow.append(actionResult);
+        }
+
+        function night2Rescue(){
+            const next = document.createElement("button");
+            const rescueAction = document.createElement("div");
+            let roll = Math.floor(Math.random() * 6) + 1;
+            let jumping = false;
+            next.innerHTML = 'Continue';
+            next.className = "button";
+            next.onclick = () => {
+                clearGameWindow();
+                night3();
+            }
+            if (strength == 1){
+                roll += 1;
+            } else if (strength == 2){
+                roll -= 1;
+            } 
+            rescueAction.innerHTML = `
+                <b>Rescue</b>
+                <p>
+                    You waste no time in bounding down the spiral staircase and running to the dock.
+                    The waves are crashing and the rain is pounding against you. You untie your dinghy and set out into the storm.
+                </p>
+                ${
+                    (() => {
+                        if(roll < 5){
+                            updateResiliency(resiliency-1);
+                            return "<p>You struggle against the waves and can't seem to get close enough to the boat. You lose track of where the boat is from this vantage point, and quickly realize you are in grave danger yourself. You turn back towards the shore. Back in the warmth of the lighthouse, you peer into the expanse of inky black water and wonder who was signaling for help so late in the night. <u><u>Lose one resiliency point.</u></u></p>";
+                        } else {
+                            jumping = true;
+                            return `
+                                <p>After what feels like an eternity of fighting against the waves, you manage to get close enough to the boat to throw a lifering. A frantic person grabs on and you manage to get them to shore.</p>
+                            `;
+                        }
+                    })()
+                }
+            `;
+            gameWindow.append(rescueAction);
+            if (jumping){
+                night2ComesAshore()
+            } else {
+                gameWindow.append(next);
+            }
+        }
+
+        function night2ComesAshore(){
+            const next = document.createElement("button");
+            const rescueAction = document.createElement("div");
+            next.innerHTML = 'Continue';
+            next.className = "button";
+            next.onclick = () => {
+                clearGameWindow();
+                night3();
+            }
+            rescueAction.innerHTML = `
+                <b>Visitor Comes Ashore</b>
+                <p>
+                You help guide the person you rescued from the boat into the warmth of the lighthouse. You stoke the fire and offer them a blanket and a mug of tea. They are shivering and silent for over an hour. You gain one resiliency point for their safe rescue. Finally, they begin to share who they are and what they were doing out at sea all alone so late. What do they tell you?
+                <p>
+                <i>You may elaborate here:</i>
+                <textarea rows="4" cols="75"></textarea>
+                <p>
+                You offer to host the visitor for the night, and radio in for a rescue boat to pick them up the next morning. 
+                </p> 
+            `;
+            gameWindow.append(rescueAction);
+            gameWindow.append(next);
+        }
+
+        function night2RadioCall(success){
+            const radioAction = document.createElement("div");
+            if (success){
+                radioAction.innerHTML = `
+                    <p>
+                        You radio the boat and they respond. It's hard to hear through the crackling connection, but it sounds like their fishing vessel is taking on water and they need to be rescued. What do you do?
+                    </p>
+                    <ul onclick="optionSelection(event, false)">
+                        <li class="clickable" onclick="night2Rescue()">
+                            Throw on your rain slicker and take your dingy out to the sea to rescue them.
+                            <br>( +  Physically Strong ) ( - Physically Weak )
+                        </li>
+                        <li class="clickable" onclick="night2Guide()">
+                            Stay on the radio to guide them to the shore
+                            <br> ( + Calm & Collected, Focused) ( - Easily Frazzled, Absent-minded)
+                        </li>
+                    </ul>
+                `
+            } else {
+                radioAction.innerHTML = `
+                    <p>
+                        You radio the boat but can't get through. It seems like your radio isn't functioning properly with the bad weather. What do you do?
+                    </p>
+                    <ul  onclick="optionSelection(event, false)">
+                        <li class="clickable" onclick="night2Rescue()">
+                            Throw on your rain slicker and take your dingy out to the sea to rescue them.
+                            <br>( +  Physically Strong ) ( - Physically Weak )
+                        </li>
+                        <li class="clickable" onclick="night2RepairRadio()">
+                            Repair the radio
+                            <br>( + Calm & Collected) ( - Slow Thinker)
+                        </li>
+                    </ul>
+                `
+            }
+            gameWindow.append(radioAction);
+        }
+
+        function night2RepairRadio(){
+            const actionResult = document.createElement("div");
+            const next = document.createElement("button");
+            next.className = "button";
+            let goToGuide = false;
+            next.innerHTML = 'Continue';
+            next.onclick = () => {
+                clearGameWindow();
+                night3();
+            }
+            let roll = Math.floor(Math.random() * 6) + 1;
+            if ([3].includes(strength)){
+                roll += 1;
+
+            } else if ([1].includes(strength)){
+                roll -= 1;
+            }
+            actionResult.innerHTML = `
+                <b>Repair the Radio</b>
+                <p>You know you won't be worth much tonight if your radio is broken. You decide to troubleshoot how to fix it. </p>
+                ${
+                    (() => {
+                        if (roll < 4){
+                            updateResiliency(resiliency-1);
+                            return "<p>You fail to repair the radio. In the time you were focused on fixing the radio, the fishing boat has disappeared from near the shore. You look out into the expanse of inky black water and wonder who was signaling for help so late in the night. <u>Lose one resiliency point.</u></p>";
+                        } else {
+                            goToGuide = true;
+                            return `<p>You repair the radio successfully."</p>`;
+                        }
+                    })()
+                }
+            `;
+
+            gameWindow.append(actionResult);
+            if(!goToGuide){
+                gameWindow.append(next);
+            } else {
+                night2Guide();
+            }
+ 
+        }
+
+        function night2Guide(){
+            const actionResult = document.createElement("div");
+            const next = document.createElement("button");
+            let jumping = false;
+            next.innerHTML = 'Continue';
+            next.className = "button";
+            next.onclick = () => {
+                clearGameWindow();
+                night3();
+            }
+            let roll = Math.floor(Math.random() * 6) + 1; 
+            if ([3, 6].includes(strength)){
+                roll += 1;
+
+            } else if ([4, 5].includes(strength)){
+                roll -= 1;
+            }
+
+            actionResult.innerHTML = `
+                <b>Guide Them to Shore</b>
+                <p>You stay on the radio with eyes on the boat and guide them in the direction of the shore.</p>
+                ${
+                    (() =>{
+                        if (roll < 4){
+                            jumping = true;
+                            return `<p>you successfully guide the fishing vessel to shore.</p>`;
+                        } else {
+                            updateResiliency(resiliency-1);
+                            return "<p>You are unable to guide the boat to shore. It seems that no matter what you say, the boat gets further from shore. Eventually the SOS light disappears. You look out into the expanse of inky black water and wonder who was signaling for help so late in the night. Lose one resiliency point</p>"
+                        }
+                    })()
+                }
+            `;
+            gameWindow.append(actionResult);
+            if(jumping){
+                night2ComesAshore()
+            } else {
+                gameWindow.append(next);
+            }
+        }
+
+        function night2Path(value){
+            const actionResult = document.createElement("div");
+            const next = document.createElement("button");
+            next.innerHTML = 'Continue';
+            next.className = "button";
+            next.onclick = () => {
+                clearGameWindow();
+                night3();
+            }
+            let roll = Math.floor(Math.random() * 6) + 1;
+            if (value == 0){
+                actionResult.innerHTML = `
+                    <b>Call on the radio</b>
+                    <p>You make a call on the radio to try to connect with the boat.<p>
+                `;
+                gameWindow.append(actionResult);
+                night2RadioCall([1, 2, 3].includes(roll)); 
+            } else {
+                night2Rescue();
+            }
+        }
+
+        function night3Path(value){
+            const actionResult = document.createElement("div");
+            const next = document.createElement("button");
+            next.innerHTML = 'Continue';
+            next.className = "button";
+            next.onclick = () => {
+                clearGameWindow();
+                night4();
+            }
+            let roll = Math.floor(Math.random() * 6) + 1;
+            if (strength == 6) {
+                roll -=1;
+            }else if (strength == 4){
+                roll += 1;
+            }
+ 
+            if (value == 0){
+                actionResult.innerHTML = `
+                    <b>Investigate</b>
+                    <p>
+                        You venture out into the cold night, holding your lantern up to try to see who could have knocked. You yell out, “Who’s there? Hello?” but only the wind howls in return. After a minute of searching, you decide to turn back. Your lantern catches something unusual off to the side of the door. You go closer to discover it is a person, shivering and wrapped in a damp wool blanket. You invite them into the lighthouse where you stoke a fire and offer them tea. You try to talk to them to see where they came from and what they want.
+                    </p>
+
+                    <p>
+                        ${
+                            (() => {
+                                if (roll < 4){
+                                    updateResiliency(resiliency-1);
+                                    return "As you ask questions, the person only mumbles back. You can't understand what they are saying, and they start to get aggressive. Their eyes narrow and they point a wavering finger at you accusingly. They begin to sing, “the king and his men stole the queen from her bed and bound her in her bones… the seas be ours beyond the powers where we will, we’ll rule…” A deep chill settles over you as you realize this person may wish you harm. You decide to tell them they must leave by the first crack of dawn. You lock the door to the lantern room on your way up, light extra lanterns and spend the night on edge, alert and waiting for the sound of this mysterious visitor leaving. When the sun rises in the morning, you open the door to the lower room to discover the fire has gone out and the visitor is gone. The mug of tea is still full, right where you had left it for them. You begin to question what you experienced. Was there really a foul-breathed, damp person chanting curses at you in the middle of the night? You lose one resiliency point as you try to calm your mind to prepare to sleep.";
+                                } else {
+                                    updateResiliency(resiliency+1);
+                                    return "As you ask questions, the visitor mumbles back. You make out a few words, enough to discern that they have been wandering the coastline after a shipwreck. You encourage them to keep talking, and they sit back in the chair and begin to sing, “the king and his men stole the queen from her bed and bound her in her bones… the seas be ours beyond the powers where we will, we’ll rule…” You realize this person must live their life at sea, and the best course of action is to connect them with the next passing boat. You go ascend to the lantern room to make a call over the radio. A boat agrees to send out a dinghy in the morning and take them to the nearest port. When you go downstairs, you discover that the fire has gone out and the visitor is gone. The mug of tea is still full, right where you had left it for them. You begin to question what you experienced. Was there really a foul-breathed, damp person chanting sea shanties at you mere minutes ago? You’ve heard stories of lighthouse apparitions and, despite your unease, you know that honoring their wishes was the right thing to do. You gain one resiliency point as you make your way back up to the lantern room to finish out the night.";
+                                }
+                            })()
+                        }
+                    </p>
+                `;
+            } else {
+                updateResiliency(resiliency-1);
+                actionResult.innerHTML = `
+                    <b>Close the Door</b>
+                    <p>
+                        You close the door, presuming it was just the wind and isolation playing tricks on your mind. As you make your way back up the spiral stairs to the lantern room, the door suddenly bursts open in a gust of wind. You hear an eerie voice through the howling wind, singing, “the king and his men stole the queen from her bed and bound her in her bones… the seas be ours beyond the powers where we will, we’ll rule…” A chill runs through you, and you are unsure if it is just the wind or if you are sensing an eerie presence. You rush towards the door to close it, this time barricading it with a chair. The firelight flickers and eventually goes out. You try to calm your nerves as you light it again. Your mind replays the legends you’ve heard of lighthouse apparitions. Could that be what you experienced? You are ill at ease for the rest of the night. <u>Lose one resiliency point.</u> 
+                    </p>
+                `;
+            }
+            gameWindow.append(actionResult);
+            gameWindow.append(next);
+        }
+
+
+ 
+        function tutorial1(){
+            toggleSound();
+            const page = document.createElement("div");
+            const next = document.createElement("button");
+            next.className = "button";
+            next.onclick = () => {
+                clearGameWindow();
+                createCharacter1();
+            }
+            next.innerHTML = 'Continue';
+            page.innerHTML = `
+                <h2>Set-Up</h2>
+                <p>
+                    Welcome to The Lighthouse Keeper, a solo role playing game.
+                    In this game, you will make decisions, roll dice to determine outcomes,
+                    and develop your backstory through journaling. To play, you will need a 6-sided dice.
+                </p>
+                <p>
+                    <b>Let's begin.</b>
+                </p>
+                <p>
+                    You are a lighthouse keeper in the not-so-distant past, on a remote coastline that is only accessible by boat. You spend your days tending the oil lamp and clockwork system of the lighthouse to ensure the light stays shining as a beacon to passing boats. Time is slow here. The mundane tasks and the constantly crashing waves cause days to blend into each other, and leave lots of time for contemplation. Every so often, the day is punctuated by a flurry of activity: making a repair, a search and rescue, or a visitor. You’ve been posted here for 3 months, and in just a few days you are set to be reprieved by an interim keeper. Your goal is to make it through the next few nights on the small reserve of strength you have remaining after this long stretch of isolation.  
+                </p>
+            `;
+
+            gameWindow.append(page);
+            gameWindow.append(next);
+
+        }
+        function createCharacter1(){
+            const next = document.createElement("button");
+            next.onclick = (evt) => {
+                clearGameWindow();
+                createCharacter2();
+            }
+            next.className = 'button';
+            next.innerHTML = 'Continue';
+            const page = document.createElement("div");
+            page.innerHTML = `
+                <h2>Create your character</h2>
+                <p>To select thoughts & memories characteristics, you may roll the dice, choose without rolling, or create characteristics that aren't listed.</p>
+                <h3>Thoughts & Memories</h3>
+                <h4>Where does your mind like to wander?</h4>
+                <ul class="numbered-list" onclick="optionSelection(event, true)">
+                    <li class="clickable">I'm always thinking ahead, dreaming about a life that is drastically different from this one</li>
+                    <li class="clickable">I'm a schemer, and like to come up with new ideas, solutions, and inventions</li>
+                    <li class="clickable">My mind is a peaceful place. I usually have a song running through my head</li>
+                    <li class="clickable">I think about all the people I've met in my life and wonder where they are now</li>
+                    <li class="clickable">I think about a loved one back home. (Who are they? What happened? You may decide)</li>
+                    <li class="clickable">I like to replay memories from my past. I revisit my childhood home, replay conversations and wander through familiar streets in my imagination</li>
+                </ul>
+
+                <p><i>You may elaborate on your choice here:</i></p>
+                <textarea rows="4" cols="75"></textarea>
+
+                <h4>What is a memory from your past that you keep dwelling on?</h4>
+                <ul class="numbered-list" onclick="optionSelection(event, true)">
+                    <li class="clickable">I dwell on a lost lover, wondering what went wrong</li>
+                    <li class="clickable">I relive a joyful time when I was a child </li>
+                    <li class="clickable">I replay the last conversation I had with a family member</li>
+                    <li class="clickable">I can't let go of a time I hurt someone I care about </li>
+                    <li class="clickable">I focus on a missed opportunity and wonder where I'd be if I had taken it</li>
+                    <li class="clickable">I relive an experience of being left out when I was a child</li>
+                </ul>
+
+                <p><i>You may elaborate on your choice here:</i></p>
+                <textarea rows="4" cols="75"></textarea>
+            `;
+            gameWindow.append(page);
+            gameWindow.append(next);
+        }
+
+        function createCharacter2(){
+            const page = document.createElement("div");
+            const next = document.createElement("button");
+            next.onclick = (evt) => {
+                clearGameWindow();
+                night1();
+            }
+            next.className = 'button';
+            next.innerHTML = 'Continue';
+            page.innerHTML = `
+                <h3>Strengths & Weaknesses</h3>
+                <p>Now, you will select a strength and corresponding weakness. You may roll the dice to select characteristics or choose a grouping without rolling.</p>
+                <ul class="numbered-list strength-weakness"  onclick="optionSelection(event, true)">
+
+                <li class="clickable" onclick="setStrength(1, 'Physically Strong, Slow Thinker')">
+                    <b>Physically Strong, Slow Thinker</b>
+                    <br> Strength: I am physically strong and capable of heavy lifting 
+                    <br> Weakness: It takes me a long time to problem solve something I'm unfamiliar with
+                </li>
+
+                <li class="clickable" onclick="setStrength(2, 'Quick Thinker, Physically Weak')">
+                    <b>Quick Thinker, Physically Weak</b>
+                    <br> Strength: I am quick to solve problems and figure out solutions
+                    <br> Weakness: I am not physically strong and have difficulty with heavy lifting
+                </li>
+                <li class="clickable" onclick="setStrength(3, 'Calm & Collected, Clumsy')">
+                    <b>Calm & Collected, Clumsy</b>
+                    <br> Strength: I keep calm in an emergency
+                    <br> Weakness: I am clumsy and not good at climbing, jumping or dodging
+                </li>
+                <li class="clickable" onclick="setStrength(4, 'Intuitive, Easily Frazzled')">
+                    <b>Intuitive, Easily Frazzled</b>
+                    <br> Strength: I am good at figuring people out and determining what they want
+                    <br> Weakness: I get easily distressed in emergencies 
+                </li>
+                <li class="clickable" onclick="setStrength(5, 'Agile, Absent-minded')">
+                    <b>Agile, Absent-minded</b>
+                    <br> Strength: I am physically fit for climbing, jumping, and dodging
+                    <br> Weakness: I am easily distracted and lose my train of thought often
+                </li>
+                <li  class="clickable" onclick="setStrength(6, 'Focused, Emotionally Unaware')">
+                    <b>Focused, Emotionally Unaware</b>
+                    <br> Strength: I am extremely focused and good at staying on track with a task
+                    <br> Weakness: I am not good at discerning what people want or need
+                </li>
+                </ul>
+                <h4>Gameplay</h4>
+                <p>You have a resiliency score that can go up and down from day to day, depending on what happens and how you react. It will start at 3. If your score drops to 0, you will need to radio for an emergency rescue, and the game ends. You will play for 4 nights (4 rounds). On the morning of the 5th day, you are scheduled to be reprieved by the interim lighthouse keeper. Your goal is to make it through the 4th night and to the 5th day with a resiliency score above 0. As each day goes by, you may face a challenge, an unexpected visitor, or discover something curious.</p>
+
+            `;
+            gameWindow.append(page);
+            gameWindow.append(next);
+        }
+
+        function night1(){
+            const page = document.createElement("div");
+            page.innerHTML = `
+            <h3>Night 1 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
+            <h4>Characteristic: ${strengthDescription}</h4>
+
+            <p>It is late afternoon when you awake from your daytime sleep. As the day wears on and the sun gets low in the sky, you prepare a simple meal and begin to settle in for your evening of tending the lighthouse. You climb the narrow spiral stairs to the lantern room to begin tending to the large Fresnel lens that will occupy your focus for the next several hours. The first order of business is to polish the glass and inspect the light for malfunctions. You quickly realize there is an issue with the rotating mechanism that will need to be replaced.</p>
+
+            What do you do?
+            <ul onclick="optionSelection(event, false)">
+                <li class="clickable" onclick="night1Path(0)">Rely on your knowledge of repairs to fix it right away</li>
+                <li class="clickable" onclick="night1Path(1)">Decide to read up on the repair in a manual that is stored in the lantern room.</li>
+            </ul>
+            <p>
+                <i>Choose one, then read the corresponding result.</i>
+            </p>
+            `;
+            gameWindow.append(page);
+       }
+
+       function night2(){
+            const page = document.createElement("div");
+            page.innerHTML = `
+            <h3>Night 2 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
+            <h4>Characteristic: ${strengthDescription}</h4>
+
+            <p>As the sun sets tonight, you can tell from the clouds that a storm is brewing. You're in for a long night of bad weather, and it will be important to keep a look out for rescue signals from passing ships. You make your way up to the lantern room. Within an hour of the sun setting, the wind whips up and the waves start to crash ferociously. Rain beats on the glass pane windows of the lantern room and a chill surrounds you. You put on an extra layer for warmth and start to scan the sea. Soon you notice an SOS signal coming from close to the shore. It looks to be a small vessel, not one of the bigger ships you are used to seeing in these waters.</p>
+
+            <i>What do you do?</i>
+            <ul onclick="optionSelection(event, false)">
+                <li class="clickable" onclick="night2Path(0)">Get on the radio to call the boat and ask what they need.</li>
+                <li class="clickable" onclick="night2Path(1)">Throw on your rain slicker and take your dingy out into the sea to rescue them. </li>
+            </ul>
+            <p>
+                <i>Choose one, then read the corresponding result.</i>
+            </p>
+            `;
+            gameWindow.append(page);
+        }
+
+        function night3(){
+            const page = document.createElement("div");
+            page.innerHTML = `
+            <h3>Night 3 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
+            <h4>Characteristic: ${strengthDescription}</h4>
+
+            <p>You prepare for another night of work, hoping that the waters stay calm and you don't have a repeat of last night's disaster. The night wears on without incident, and you decide to pass the time journaling. What do you write about?</p>
+            <i>You may elaborate here:</i>
+            <textarea rows="4" cols="75"></textarea>
+
+            <p>
+               In the darkest part of the night, you are startled from your writing by a loud banging on the door. Who on earth could be here? Your lighthouse is inaccessible without a boat. There are no roads leading inland, so visitors are a rarity. Especially in the middle of the night. You go downstairs and open the door to discover that nobody is there. What do you do? 
+            </p>
+            <ul onclick="optionSelection(event, false)">
+                <li class="clickable" onclick="night3Path(0)">
+                    Get a lantern and go outside to investigate
+                    <br>(+ Intuitive) ( - Emotionally Unaware )
+                </li>
+                <li class="clickable" onclick="night3Path(1)">
+                    Close the door, presuming it was just the wind
+                </li>
+            </ul>
+            `;
+            gameWindow.append(page);
+        }
+        function night4(){
+            const page = document.createElement("div");
+
+            let roll = Math.floor(Math.random() * 6) + 1;
+            if (strength == 4){
+                roll -=1;
+            }else if (strength == 3){
+                roll += 1;
+            }
+            page.innerHTML = `
+            <h3>Night 4 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
+            <h4>Characteristic: ${strengthDescription}</h4>
+
+            <p>As you settle in for your night of work, you replay the memory of last night's visitor. You are polishing a replacement glass lens, your mind wandering, when the lens slips and you cut yourself. The pain and the sight of blood snaps you into action. You know from past injuries that you are totally on your own, at least until the interim keeper arrives in the coming afternoon, more than 16 hours from now. You rush to where the medical supplies are stored and begin to try to tend to the cut. It's worse than you thought and you begin to feel lightheaded.</p>
+            `;
+            gameWindow.append(page);
+
+
+            const action = document.createElement("div");
+            action.innerHTML = `
+            ${
+                (() => {
+                    if (roll < 5){
+                        updateResiliency(resiliency-1);
+                        return "<p>You fumble with the gauze and antiseptic, your fingers shaky and your breath uneven. You've handled injuries before without issue, but this one seems to be unusually bad. Perhaps it is the fatigue from your 3 months of isolation wearing on you, or perhaps it was just a cut at the exact worst place. You do your best to wrap the injury, but you are concerned you won’t make it through the night without better medical intervention. You decide to radio for help to see if your interim keeper could arrive any sooner, and you <u>Lose one resiliency point.</u> You make your way downstairs, leaving your post in the lantern room to spend the night in and out of consciousness, shivering despite being right next to the fire. In the morning, you blearily awake to the sound of the door opening and the interim keeper rushing to your aid. You made it to the end of the longest, hardest 3 months of your life, but it will take weeks before your strength returns. You will have to stay here for another week in the company of the interim keeper before you have the strength to sail back to port alone. </p>"
+                    } else {
+                        return `
+                            <p>You fumble with the gauze and antiseptic, your fingers shaky and your breath uneven. You've handled injuries before without issue, but this one seems to be unusually bad. Perhaps it is the fatigue from your 3 months of isolation wearing on you, or perhaps it was just a cut at the exact worst place. You wrap the injury and stop the bleeding, and decide to go downstairs to rest by the fire until the worst pain is over. You doze off for a few hours, and when you awaken the gauze seems to be doing its job, and the feeling of lightheadedness has passed. You muster the strength to climb back up the stairs to the lantern room, where you tend the lighthouse for the final night of your post. Your mind retraces the experiences of the last few months: the visitors, the storms, the time spent in contemplation… You start to look forward to what awaits you on the mainland. Where does your mind wander?
+                            </p><i>You may elaborate here:</i>
+                            <textarea rows="4" cols="75"></textarea>
+                            <p>
+                                When dawn breaks, you pack your things and doze off for a few hours in anticipation of the arrival of the interim lighthouse keeper. You assess your injury and determine you will be able to sail back the next day if the weather is good. A sense of accomplishment and relief washes over you when the interim lighthouse keeper arrives and takes over your post. Congratulations on surviving to the end in sound mind, body and spirit.
+                            </p>
+                            `;
+                    }
+                })()
+            }
+           `;
+           gameWindow.append(action);
+        }
+    window.onload = startGame;
+  </script>
+</body>
+</html>
