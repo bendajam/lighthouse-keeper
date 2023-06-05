@@ -115,6 +115,26 @@
         </audio>
     </div>
     <script type="text/javascript">
+
+        function nextPage(page, ...args){
+            clearGameWindow();
+            let ending = `
+                <p>
+                    The latest mishap finally tips you over the edge.
+                    After months of isolation, you were hopeful you could stick it out until your interim replacement arrived.
+                    But with your resiliency diminished, the thought of another night in the lantern room is too much to bear.
+                    Despondent, you radio for an emergency rescue.
+                    You are informed that a boat will arrive midday tomorrow to pick you up and take you to port.
+                    You knew that weathering this post would be difficult, but you had no idea just how difficult it would be out here all alone.
+                </p>
+            `;
+
+            if (resiliency < 1){
+                theEnd(ending);
+            } else {
+                page(...args);
+            }
+        }
         function toggleSound(){
           var audio = document.getElementById('myAudio');
           var audioControls = document.getElementById("playAudio");
@@ -170,6 +190,8 @@
             const title = document.createElement("h1");
             const secondary = document.createElement("h3");
             resiliency = 3;
+            strength = null;
+            strengthDescription = null;
 
             // Set attributes for the <div> element (optional)
             title.id = "title";
@@ -331,8 +353,7 @@
             next.className = "button";
             next.innerHTML = 'Continue';
             next.onclick = (evt) => {
-                clearGameWindow();
-                night2();
+                nextPage(night2);
             }
  
             if (value == 0){
@@ -456,10 +477,7 @@
             let jumping = false;
             next.innerHTML = 'Continue';
             next.className = "button";
-            next.onclick = () => {
-                clearGameWindow();
-                night3();
-            }
+            next.onclick = () => {nextPage(night3);}
             if (strength == 1){
                 roll += 1;
             } else if (strength == 2){
@@ -498,10 +516,7 @@
             const rescueAction = document.createElement("div");
             next.innerHTML = 'Continue';
             next.className = "button";
-            next.onclick = () => {
-                clearGameWindow();
-                night3();
-            }
+            next.onclick = () => {nextPage(night3);}
             rescueAction.innerHTML = `
                 <b>Visitor Comes Ashore</b>
                 <p>
@@ -561,10 +576,7 @@
             next.className = "button";
             let goToGuide = false;
             next.innerHTML = 'Continue';
-            next.onclick = () => {
-                clearGameWindow();
-                night3();
-            }
+            next.onclick = () => {nextPage(night3);}
             let roll = Math.floor(Math.random() * 6) + 1;
             if ([3].includes(strength)){
                 roll += 1;
@@ -603,10 +615,7 @@
             let jumping = false;
             next.innerHTML = 'Continue';
             next.className = "button";
-            next.onclick = () => {
-                clearGameWindow();
-                night3();
-            }
+            next.onclick = () => {nextPage(night3);}
             let roll = Math.floor(Math.random() * 6) + 1; 
             if ([3, 6].includes(strength)){
                 roll += 1;
@@ -640,13 +649,6 @@
 
         function night2Path(value){
             const actionResult = document.createElement("div");
-            const next = document.createElement("button");
-            next.innerHTML = 'Continue';
-            next.className = "button";
-            next.onclick = () => {
-                clearGameWindow();
-                night3();
-            }
             let roll = Math.floor(Math.random() * 6) + 1;
             if (value == 0){
                 actionResult.innerHTML = `
@@ -690,10 +692,7 @@
             const next = document.createElement("button");
             next.innerHTML = 'Continue';
             next.className = "button";
-            next.onclick = () => {
-                clearGameWindow();
-                night4();
-            }
+            next.onclick = () => {nextPage(night4);}
             let roll = Math.floor(Math.random() * 6) + 1;
             if (strength == 6) {
                 roll -=1;
@@ -766,20 +765,50 @@
 
         function night4path(){
             const action = document.createElement("div");
+            const next = document.createElement("button");
+            next.innerHTML = 'Continue';
+            next.className = "button";
+ 
             let roll = Math.floor(Math.random() * 6) + 1;
             if (strength == 4){
                 roll -=1;
             }else if (strength == 3){
                 roll += 1;
             }
+
+            let successEnding = `
+                <p>
+                    When dawn breaks, you pack your things and doze off for a few hours in anticipation of the arrival of the interim lighthouse keeper.
+                    You assess your injury and determine you will be able to sail back the next day if the weather is good.
+                    A sense of accomplishment and relief washes over you when the interim lighthouse keeper arrives and takes over your post.
+                    Congratulations on surviving to the end in sound mind, body and spirit.
+                </p>
+            `;
+            let failureEnding = `
+                <p>
+                    You make your way downstairs, leaving your post in the lantern room to spend the night in and out of consciousness, shivering despite being right next to the fire.
+                    In the morning, you blearily awake to the sound of the door opening and the interim keeper rushing to your aid.
+                    You made it to the end of the longest, hardest 3 months of your life, but it will take weeks before your strength returns.
+                    You will have to stay here for another week in the company of the interim keeper before you have the strength to sail back to port alone.
+                </p>
+            `;
  
             action.innerHTML = `
             ${
                 (() => {
                     if (roll < 5){
                         updateResiliency(resiliency-1);
-                        return "<p>You fumble with the gauze and antiseptic, your fingers shaky and your breath uneven. You've handled injuries before without issue, but this one seems to be unusually bad. Perhaps it is the fatigue from your 3 months of isolation wearing on you, or perhaps it was just a cut at the exact worst place. You do your best to wrap the injury, but you are concerned you won’t make it through the night without better medical intervention. You decide to radio for help to see if your interim keeper could arrive any sooner, and you <u>Lose one resiliency point.</u> You make your way downstairs, leaving your post in the lantern room to spend the night in and out of consciousness, shivering despite being right next to the fire. In the morning, you blearily awake to the sound of the door opening and the interim keeper rushing to your aid. You made it to the end of the longest, hardest 3 months of your life, but it will take weeks before your strength returns. You will have to stay here for another week in the company of the interim keeper before you have the strength to sail back to port alone. </p>"
+                        next.onclick = () => {nextPage(theEnd, failureEnding);}
+                        return `
+                            <p>
+                                You fumble with the gauze and antiseptic, your fingers shaky and your breath uneven.
+                                You've handled injuries before without issue, but this one seems to be unusually bad.
+                                Perhaps it is the fatigue from your 3 months of isolation wearing on you, or perhaps it was just a cut at the exact worst place.
+                                You do your best to wrap the injury, but you are concerned you won't make it through the night without better medical intervention.
+                                You decide to radio for help to see if your interim keeper could arrive any sooner, and you <u>Lose one resiliency point.</u>
+                           </p>`;
                     } else {
+                        next.onclick = () => {nextPage(theEnd, successEnding);}
                         return `
                             <p>
                                 It's worse than you thought and you begin to feel lightheaded.
@@ -794,14 +823,17 @@
                             </p>
                             <i>You may elaborate here:</i>
                             <textarea rows="4" cols="75"></textarea>
-                            <p>
-                                When dawn breaks, you pack your things and doze off for a few hours in anticipation of the arrival of the interim lighthouse keeper. You assess your injury and determine you will be able to sail back the next day if the weather is good. A sense of accomplishment and relief washes over you when the interim lighthouse keeper arrives and takes over your post. Congratulations on surviving to the end in sound mind, body and spirit.
-                            </p>
-                            `;
+                           `;
                     }
                 })()
             }`;
+
+            if (resiliency <= 0){
+                next.onclick = () => {nextPage(theEnd);}
+            }
             gameWindow.append(action);
+            gameWindow.append(next);
+
         }
 
         function night4(){
@@ -826,7 +858,24 @@
                  </li>
              </ul>
              `;
+
              gameWindow.append(page);
+        }
+    </script>
+    <script id="theEnd">
+        function theEnd(ending){
+            const page = document.createElement("div");
+
+            let result = `
+                <h3>The End</h3>
+                ${ending}
+                <div>
+                   <button class="button" onclick="nextPage(startGame)">Play Again</button>
+                </div>
+             `;
+
+            page.innerHTML = result;
+            gameWindow.append(page);
         }
     </script>
 </body>
