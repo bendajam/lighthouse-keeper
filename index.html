@@ -128,19 +128,23 @@
         }
 
         function optionSelection(evt, allowReclick){
-            var children = evt.target.parentElement.children;
+            let target = evt.target;
+            if (target.tagName != 'LI'){
+                target = target.parentElement;
+            }
+            var children = target.parentElement.children;
             for (var i = 0; i < children.length; i++) {
                 var elem= children[i];
                 elem.className = allowReclick?"clickable":"";
-                if(elem != evt.target && !allowReclick){
+                if(elem != target && !allowReclick){
                     elem.className += "frozen";
                 }
                 if(!allowReclick){
                     elem.onclick = () => {};
-                    evt.target.parentElement.onclick = () => {};
+                    target.parentElement.onclick = () => {};
                 }
             }
-            evt.target.className += " selected";
+            target.className += " selected";
         }
 
 
@@ -190,6 +194,136 @@
             gameWindow.append(secondary);
             gameWindow.append(startContainer);
         }
+
+        function tutorial1(){
+            toggleSound();
+            const page = document.createElement("div");
+            const next = document.createElement("button");
+            next.className = "button";
+            next.onclick = () => {
+                clearGameWindow();
+                createCharacter1();
+            }
+            next.innerHTML = 'Continue';
+            page.innerHTML = `
+                <h2>Set-Up</h2>
+                <p>
+                    Welcome to The Lighthouse Keeper, a solo role playing game.
+                    In this game, you will make decisions, roll dice to determine outcomes,
+                    and develop your backstory through journaling. To play, you will need a 6-sided dice.
+                </p>
+                <p>
+                    <b>Let's begin.</b>
+                </p>
+                <p>
+                    You are a lighthouse keeper in the not-so-distant past, on a remote coastline that is only accessible by boat. You spend your days tending the oil lamp and clockwork system of the lighthouse to ensure the light stays shining as a beacon to passing boats. Time is slow here. The mundane tasks and the constantly crashing waves cause days to blend into each other, and leave lots of time for contemplation. Every so often, the day is punctuated by a flurry of activity: making a repair, a search and rescue, or a visitor. You’ve been posted here for 3 months, and in just a few days you are set to be reprieved by an interim keeper. Your goal is to make it through the next few nights on the small reserve of strength you have remaining after this long stretch of isolation.  
+                </p>
+            `;
+
+            gameWindow.append(page);
+            gameWindow.append(next);
+
+        }
+        function createCharacter1(){
+            const next = document.createElement("button");
+            next.onclick = (evt) => {
+                clearGameWindow();
+                createCharacter2();
+            }
+            next.className = 'button';
+            next.innerHTML = 'Continue';
+            const page = document.createElement("div");
+            page.innerHTML = `
+                <h2>Create your character</h2>
+                <p>To select thoughts & memories characteristics, you may roll the dice, choose without rolling, or create characteristics that aren't listed.</p>
+                <h3>Thoughts & Memories</h3>
+                <h4>Where does your mind like to wander?</h4>
+                <ul class="numbered-list" onclick="optionSelection(event, true)">
+                    <li class="clickable">I'm always thinking ahead, dreaming about a life that is drastically different from this one</li>
+                    <li class="clickable">I'm a schemer, and like to come up with new ideas, solutions, and inventions</li>
+                    <li class="clickable">My mind is a peaceful place. I usually have a song running through my head</li>
+                    <li class="clickable">I think about all the people I've met in my life and wonder where they are now</li>
+                    <li class="clickable">I think about a loved one back home. (Who are they? What happened? You may decide)</li>
+                    <li class="clickable">I like to replay memories from my past. I revisit my childhood home, replay conversations and wander through familiar streets in my imagination</li>
+                </ul>
+
+                <p><i>You may elaborate on your choice here:</i></p>
+                <textarea rows="4" cols="75"></textarea>
+
+                <h4>What is a memory from your past that you keep dwelling on?</h4>
+                <ul class="numbered-list" onclick="optionSelection(event, true)">
+                    <li class="clickable">I dwell on a lost lover, wondering what went wrong</li>
+                    <li class="clickable">I relive a joyful time when I was a child </li>
+                    <li class="clickable">I replay the last conversation I had with a family member</li>
+                    <li class="clickable">I can't let go of a time I hurt someone I care about </li>
+                    <li class="clickable">I focus on a missed opportunity and wonder where I'd be if I had taken it</li>
+                    <li class="clickable">I relive an experience of being left out when I was a child</li>
+                </ul>
+
+                <p><i>You may elaborate on your choice here:</i></p>
+                <textarea rows="4" cols="75"></textarea>
+            `;
+            gameWindow.append(page);
+            gameWindow.append(next);
+        }
+
+        function createCharacter2(){
+            const page = document.createElement("div");
+            const next = document.createElement("button");
+            next.onclick = (evt) => {
+                clearGameWindow();
+                night1();
+            }
+            next.className = 'button';
+            next.innerHTML = 'Continue';
+            page.innerHTML = `
+                <h3>Strengths & Weaknesses</h3>
+                <p>Now, you will select a strength and corresponding weakness. You may roll the dice to select characteristics or choose a grouping without rolling.</p>
+                <ul class="numbered-list strength-weakness"  onclick="optionSelection(event, true)">
+
+                <li class="clickable" onclick="setStrength(1, 'Physically Strong, Slow Thinker')">
+                    <b>Physically Strong, Slow Thinker</b>
+                    <br> Strength: I am physically strong and capable of heavy lifting 
+                    <br> Weakness: It takes me a long time to problem solve something I'm unfamiliar with
+                </li>
+
+                <li class="clickable" onclick="setStrength(2, 'Quick Thinker, Physically Weak')">
+                    <b>Quick Thinker, Physically Weak</b>
+                    <br> Strength: I am quick to solve problems and figure out solutions
+                    <br> Weakness: I am not physically strong and have difficulty with heavy lifting
+                </li>
+                <li class="clickable" onclick="setStrength(3, 'Calm & Collected, Clumsy')">
+                    <b>Calm & Collected, Clumsy</b>
+                    <br> Strength: I keep calm in an emergency
+                    <br> Weakness: I am clumsy and not good at climbing, jumping or dodging
+                </li>
+                <li class="clickable" onclick="setStrength(4, 'Intuitive, Easily Frazzled')">
+                    <b>Intuitive, Easily Frazzled</b>
+                    <br> Strength: I am good at figuring people out and determining what they want
+                    <br> Weakness: I get easily distressed in emergencies 
+                </li>
+                <li class="clickable" onclick="setStrength(5, 'Agile, Absent-minded')">
+                    <b>Agile, Absent-minded</b>
+                    <br> Strength: I am physically fit for climbing, jumping, and dodging
+                    <br> Weakness: I am easily distracted and lose my train of thought often
+                </li>
+                <li  class="clickable" onclick="setStrength(6, 'Focused, Emotionally Unaware')">
+                    <b>Focused, Emotionally Unaware</b>
+                    <br> Strength: I am extremely focused and good at staying on track with a task
+                    <br> Weakness: I am not good at discerning what people want or need
+                </li>
+                </ul>
+                <h4>Gameplay</h4>
+                <p>You have a resiliency score that can go up and down from day to day, depending on what happens and how you react. It will start at 3. If your score drops to 0, you will need to radio for an emergency rescue, and the game ends. You will play for 4 nights (4 rounds). On the morning of the 5th day, you are scheduled to be reprieved by the interim lighthouse keeper. Your goal is to make it through the 4th night and to the 5th day with a resiliency score above 0. As each day goes by, you may face a challenge, an unexpected visitor, or discover something curious.</p>
+
+            `;
+            gameWindow.append(page);
+            gameWindow.append(next);
+        }
+
+        window.onload = startGame;
+    </script>
+    <script id="night1">
 
         function night1Path(value){
             const actionResult = document.createElement("div");
@@ -290,6 +424,31 @@
             gameWindow.append(actionResult);
         }
 
+
+        function night1(){
+
+            const page = document.createElement("div");
+            page.innerHTML = `
+            <h3>Night 1 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
+            <h4>Characteristic: ${strengthDescription}</h4>
+
+            <p>It is late afternoon when you awake from your daytime sleep. As the day wears on and the sun gets low in the sky, you prepare a simple meal and begin to settle in for your evening of tending the lighthouse. You climb the narrow spiral stairs to the lantern room to begin tending to the large Fresnel lens that will occupy your focus for the next several hours. The first order of business is to polish the glass and inspect the light for malfunctions. You quickly realize there is an issue with the rotating mechanism that will need to be replaced.</p>
+
+            What do you do?
+            <ul onclick="optionSelection(event, false)">
+                <li class="clickable" onclick="night1Path(0)">Rely on your knowledge of repairs to fix it right away</li>
+                <li class="clickable" onclick="night1Path(1)">Decide to read up on the repair in a manual that is stored in the lantern room.</li>
+            </ul>
+            <p>
+                <i>Choose one, then read the corresponding result.</i>
+            </p>
+            `;
+            gameWindow.append(page);
+       }
+
+
+    </script>
+    <script id="night2">
         function night2Rescue(){
             const next = document.createElement("button");
             const rescueAction = document.createElement("div");
@@ -501,6 +660,31 @@
             }
         }
 
+ 
+       function night2(){
+            const page = document.createElement("div");
+            page.innerHTML = `
+            <h3>Night 2 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
+            <h4>Characteristic: ${strengthDescription}</h4>
+
+            <p>As the sun sets tonight, you can tell from the clouds that a storm is brewing. You're in for a long night of bad weather, and it will be important to keep a look out for rescue signals from passing ships. You make your way up to the lantern room. Within an hour of the sun setting, the wind whips up and the waves start to crash ferociously. Rain beats on the glass pane windows of the lantern room and a chill surrounds you. You put on an extra layer for warmth and start to scan the sea. Soon you notice an SOS signal coming from close to the shore. It looks to be a small vessel, not one of the bigger ships you are used to seeing in these waters.</p>
+
+            <i>What do you do?</i>
+            <ul onclick="optionSelection(event, false)">
+                <li class="clickable" onclick="night2Path(0)">Get on the radio to call the boat and ask what they need.</li>
+                <li class="clickable" onclick="night2Path(1)">Throw on your rain slicker and take your dingy out into the sea to rescue them. </li>
+            </ul>
+            <p>
+                <i>Choose one, then read the corresponding result.</i>
+            </p>
+            `;
+            gameWindow.append(page);
+        }
+
+
+    </script>
+    <script id="night3">
+
         function night3Path(value){
             const actionResult = document.createElement("div");
             const next = document.createElement("button");
@@ -551,174 +735,6 @@
             gameWindow.append(next);
         }
 
-
- 
-        function tutorial1(){
-            toggleSound();
-            const page = document.createElement("div");
-            const next = document.createElement("button");
-            next.className = "button";
-            next.onclick = () => {
-                clearGameWindow();
-                createCharacter1();
-            }
-            next.innerHTML = 'Continue';
-            page.innerHTML = `
-                <h2>Set-Up</h2>
-                <p>
-                    Welcome to The Lighthouse Keeper, a solo role playing game.
-                    In this game, you will make decisions, roll dice to determine outcomes,
-                    and develop your backstory through journaling. To play, you will need a 6-sided dice.
-                </p>
-                <p>
-                    <b>Let's begin.</b>
-                </p>
-                <p>
-                    You are a lighthouse keeper in the not-so-distant past, on a remote coastline that is only accessible by boat. You spend your days tending the oil lamp and clockwork system of the lighthouse to ensure the light stays shining as a beacon to passing boats. Time is slow here. The mundane tasks and the constantly crashing waves cause days to blend into each other, and leave lots of time for contemplation. Every so often, the day is punctuated by a flurry of activity: making a repair, a search and rescue, or a visitor. You’ve been posted here for 3 months, and in just a few days you are set to be reprieved by an interim keeper. Your goal is to make it through the next few nights on the small reserve of strength you have remaining after this long stretch of isolation.  
-                </p>
-            `;
-
-            gameWindow.append(page);
-            gameWindow.append(next);
-
-        }
-        function createCharacter1(){
-            const next = document.createElement("button");
-            next.onclick = (evt) => {
-                clearGameWindow();
-                createCharacter2();
-            }
-            next.className = 'button';
-            next.innerHTML = 'Continue';
-            const page = document.createElement("div");
-            page.innerHTML = `
-                <h2>Create your character</h2>
-                <p>To select thoughts & memories characteristics, you may roll the dice, choose without rolling, or create characteristics that aren't listed.</p>
-                <h3>Thoughts & Memories</h3>
-                <h4>Where does your mind like to wander?</h4>
-                <ul class="numbered-list" onclick="optionSelection(event, true)">
-                    <li class="clickable">I'm always thinking ahead, dreaming about a life that is drastically different from this one</li>
-                    <li class="clickable">I'm a schemer, and like to come up with new ideas, solutions, and inventions</li>
-                    <li class="clickable">My mind is a peaceful place. I usually have a song running through my head</li>
-                    <li class="clickable">I think about all the people I've met in my life and wonder where they are now</li>
-                    <li class="clickable">I think about a loved one back home. (Who are they? What happened? You may decide)</li>
-                    <li class="clickable">I like to replay memories from my past. I revisit my childhood home, replay conversations and wander through familiar streets in my imagination</li>
-                </ul>
-
-                <p><i>You may elaborate on your choice here:</i></p>
-                <textarea rows="4" cols="75"></textarea>
-
-                <h4>What is a memory from your past that you keep dwelling on?</h4>
-                <ul class="numbered-list" onclick="optionSelection(event, true)">
-                    <li class="clickable">I dwell on a lost lover, wondering what went wrong</li>
-                    <li class="clickable">I relive a joyful time when I was a child </li>
-                    <li class="clickable">I replay the last conversation I had with a family member</li>
-                    <li class="clickable">I can't let go of a time I hurt someone I care about </li>
-                    <li class="clickable">I focus on a missed opportunity and wonder where I'd be if I had taken it</li>
-                    <li class="clickable">I relive an experience of being left out when I was a child</li>
-                </ul>
-
-                <p><i>You may elaborate on your choice here:</i></p>
-                <textarea rows="4" cols="75"></textarea>
-            `;
-            gameWindow.append(page);
-            gameWindow.append(next);
-        }
-
-        function createCharacter2(){
-            const page = document.createElement("div");
-            const next = document.createElement("button");
-            next.onclick = (evt) => {
-                clearGameWindow();
-                night1();
-            }
-            next.className = 'button';
-            next.innerHTML = 'Continue';
-            page.innerHTML = `
-                <h3>Strengths & Weaknesses</h3>
-                <p>Now, you will select a strength and corresponding weakness. You may roll the dice to select characteristics or choose a grouping without rolling.</p>
-                <ul class="numbered-list strength-weakness"  onclick="optionSelection(event, true)">
-
-                <li class="clickable" onclick="setStrength(1, 'Physically Strong, Slow Thinker')">
-                    <b>Physically Strong, Slow Thinker</b>
-                    <br> Strength: I am physically strong and capable of heavy lifting 
-                    <br> Weakness: It takes me a long time to problem solve something I'm unfamiliar with
-                </li>
-
-                <li class="clickable" onclick="setStrength(2, 'Quick Thinker, Physically Weak')">
-                    <b>Quick Thinker, Physically Weak</b>
-                    <br> Strength: I am quick to solve problems and figure out solutions
-                    <br> Weakness: I am not physically strong and have difficulty with heavy lifting
-                </li>
-                <li class="clickable" onclick="setStrength(3, 'Calm & Collected, Clumsy')">
-                    <b>Calm & Collected, Clumsy</b>
-                    <br> Strength: I keep calm in an emergency
-                    <br> Weakness: I am clumsy and not good at climbing, jumping or dodging
-                </li>
-                <li class="clickable" onclick="setStrength(4, 'Intuitive, Easily Frazzled')">
-                    <b>Intuitive, Easily Frazzled</b>
-                    <br> Strength: I am good at figuring people out and determining what they want
-                    <br> Weakness: I get easily distressed in emergencies 
-                </li>
-                <li class="clickable" onclick="setStrength(5, 'Agile, Absent-minded')">
-                    <b>Agile, Absent-minded</b>
-                    <br> Strength: I am physically fit for climbing, jumping, and dodging
-                    <br> Weakness: I am easily distracted and lose my train of thought often
-                </li>
-                <li  class="clickable" onclick="setStrength(6, 'Focused, Emotionally Unaware')">
-                    <b>Focused, Emotionally Unaware</b>
-                    <br> Strength: I am extremely focused and good at staying on track with a task
-                    <br> Weakness: I am not good at discerning what people want or need
-                </li>
-                </ul>
-                <h4>Gameplay</h4>
-                <p>You have a resiliency score that can go up and down from day to day, depending on what happens and how you react. It will start at 3. If your score drops to 0, you will need to radio for an emergency rescue, and the game ends. You will play for 4 nights (4 rounds). On the morning of the 5th day, you are scheduled to be reprieved by the interim lighthouse keeper. Your goal is to make it through the 4th night and to the 5th day with a resiliency score above 0. As each day goes by, you may face a challenge, an unexpected visitor, or discover something curious.</p>
-
-            `;
-            gameWindow.append(page);
-            gameWindow.append(next);
-        }
-
-        function night1(){
-            const page = document.createElement("div");
-            page.innerHTML = `
-            <h3>Night 1 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
-            <h4>Characteristic: ${strengthDescription}</h4>
-
-            <p>It is late afternoon when you awake from your daytime sleep. As the day wears on and the sun gets low in the sky, you prepare a simple meal and begin to settle in for your evening of tending the lighthouse. You climb the narrow spiral stairs to the lantern room to begin tending to the large Fresnel lens that will occupy your focus for the next several hours. The first order of business is to polish the glass and inspect the light for malfunctions. You quickly realize there is an issue with the rotating mechanism that will need to be replaced.</p>
-
-            What do you do?
-            <ul onclick="optionSelection(event, false)">
-                <li class="clickable" onclick="night1Path(0)">Rely on your knowledge of repairs to fix it right away</li>
-                <li class="clickable" onclick="night1Path(1)">Decide to read up on the repair in a manual that is stored in the lantern room.</li>
-            </ul>
-            <p>
-                <i>Choose one, then read the corresponding result.</i>
-            </p>
-            `;
-            gameWindow.append(page);
-       }
-
-       function night2(){
-            const page = document.createElement("div");
-            page.innerHTML = `
-            <h3>Night 2 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
-            <h4>Characteristic: ${strengthDescription}</h4>
-
-            <p>As the sun sets tonight, you can tell from the clouds that a storm is brewing. You're in for a long night of bad weather, and it will be important to keep a look out for rescue signals from passing ships. You make your way up to the lantern room. Within an hour of the sun setting, the wind whips up and the waves start to crash ferociously. Rain beats on the glass pane windows of the lantern room and a chill surrounds you. You put on an extra layer for warmth and start to scan the sea. Soon you notice an SOS signal coming from close to the shore. It looks to be a small vessel, not one of the bigger ships you are used to seeing in these waters.</p>
-
-            <i>What do you do?</i>
-            <ul onclick="optionSelection(event, false)">
-                <li class="clickable" onclick="night2Path(0)">Get on the radio to call the boat and ask what they need.</li>
-                <li class="clickable" onclick="night2Path(1)">Throw on your rain slicker and take your dingy out into the sea to rescue them. </li>
-            </ul>
-            <p>
-                <i>Choose one, then read the corresponding result.</i>
-            </p>
-            `;
-            gameWindow.append(page);
-        }
-
         function night3(){
             const page = document.createElement("div");
             page.innerHTML = `
@@ -744,25 +760,19 @@
             `;
             gameWindow.append(page);
         }
-        function night4(){
-            const page = document.createElement("div");
+ 
+    </script>
+    <script id="night4">
 
+        function night4path(){
+            const action = document.createElement("div");
             let roll = Math.floor(Math.random() * 6) + 1;
             if (strength == 4){
                 roll -=1;
             }else if (strength == 3){
                 roll += 1;
             }
-            page.innerHTML = `
-            <h3>Night 4 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
-            <h4>Characteristic: ${strengthDescription}</h4>
-
-            <p>As you settle in for your night of work, you replay the memory of last night's visitor. You are polishing a replacement glass lens, your mind wandering, when the lens slips and you cut yourself. The pain and the sight of blood snaps you into action. You know from past injuries that you are totally on your own, at least until the interim keeper arrives in the coming afternoon, more than 16 hours from now. You rush to where the medical supplies are stored and begin to try to tend to the cut. It's worse than you thought and you begin to feel lightheaded.</p>
-            `;
-            gameWindow.append(page);
-
-
-            const action = document.createElement("div");
+ 
             action.innerHTML = `
             ${
                 (() => {
@@ -771,8 +781,18 @@
                         return "<p>You fumble with the gauze and antiseptic, your fingers shaky and your breath uneven. You've handled injuries before without issue, but this one seems to be unusually bad. Perhaps it is the fatigue from your 3 months of isolation wearing on you, or perhaps it was just a cut at the exact worst place. You do your best to wrap the injury, but you are concerned you won’t make it through the night without better medical intervention. You decide to radio for help to see if your interim keeper could arrive any sooner, and you <u>Lose one resiliency point.</u> You make your way downstairs, leaving your post in the lantern room to spend the night in and out of consciousness, shivering despite being right next to the fire. In the morning, you blearily awake to the sound of the door opening and the interim keeper rushing to your aid. You made it to the end of the longest, hardest 3 months of your life, but it will take weeks before your strength returns. You will have to stay here for another week in the company of the interim keeper before you have the strength to sail back to port alone. </p>"
                     } else {
                         return `
-                            <p>You fumble with the gauze and antiseptic, your fingers shaky and your breath uneven. You've handled injuries before without issue, but this one seems to be unusually bad. Perhaps it is the fatigue from your 3 months of isolation wearing on you, or perhaps it was just a cut at the exact worst place. You wrap the injury and stop the bleeding, and decide to go downstairs to rest by the fire until the worst pain is over. You doze off for a few hours, and when you awaken the gauze seems to be doing its job, and the feeling of lightheadedness has passed. You muster the strength to climb back up the stairs to the lantern room, where you tend the lighthouse for the final night of your post. Your mind retraces the experiences of the last few months: the visitors, the storms, the time spent in contemplation… You start to look forward to what awaits you on the mainland. Where does your mind wander?
-                            </p><i>You may elaborate here:</i>
+                            <p>
+                                It's worse than you thought and you begin to feel lightheaded.
+                                You fumble with the gauze and antiseptic, your fingers shaky and your breath uneven.
+                                You've handled injuries before without issue, but this one seems to be unusually bad.
+                                Perhaps it is the fatigue from your 3 months of isolation wearing on you, or perhaps it was just a cut at the exact worst place.
+                                You wrap the injury and stop the bleeding, and decide to go downstairs to rest by the fire until the worst pain is over.
+                                You doze off for a few hours, and when you awaken the gauze seems to be doing its job, and the feeling of lightheadedness has passed.
+                                You muster the strength to climb back up the stairs to the lantern room, where you tend the lighthouse for the final night of your post.
+                                Your mind retraces the experiences of the last few months: the visitors, the storms, the time spent in contemplation…
+                                You start to look forward to what awaits you on the mainland. Where does your mind wander?
+                            </p>
+                            <i>You may elaborate here:</i>
                             <textarea rows="4" cols="75"></textarea>
                             <p>
                                 When dawn breaks, you pack your things and doze off for a few hours in anticipation of the arrival of the interim lighthouse keeper. You assess your injury and determine you will be able to sail back the next day if the weather is good. A sense of accomplishment and relief washes over you when the interim lighthouse keeper arrives and takes over your post. Congratulations on surviving to the end in sound mind, body and spirit.
@@ -780,11 +800,34 @@
                             `;
                     }
                 })()
-            }
-           `;
-           gameWindow.append(action);
+            }`;
+            gameWindow.append(action);
         }
-    window.onload = startGame;
-  </script>
+
+        function night4(){
+            const page = document.createElement("div");
+
+            page.innerHTML = `
+             <h3>Night 4 - Resiliency Score: <span id="resiliency">${resiliency}</span></h3>
+             <h4>Characteristic: ${strengthDescription}</h4>
+
+             <p>
+                 As you settle in for your night of work, you replay the memory of last night's visitor.
+                 You are polishing a replacement glass lens, your mind wandering, when the lens slips and you cut yourself.
+                 The pain and the sight of blood snaps you into action.
+                 You know from past injuries that you are totally on your own, at least until the interim keeper arrives in the coming afternoon, more than 16 hours from now.
+                 You rush to where the medical supplies are stored and begin.
+             </p>
+
+             <ul onclick="optionSelection(event, false)">
+                 <li class="clickable" onclick="night4path()">
+                    To try to tend to the cut.
+                    <br>(+ Calm & Collected) ( - Easily Frazzled )
+                 </li>
+             </ul>
+             `;
+             gameWindow.append(page);
+        }
+    </script>
 </body>
 </html>
